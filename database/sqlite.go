@@ -1,4 +1,5 @@
 //go:build cgo
+// +build cgo
 
 // 因为 go-sqlite3 库是一个 cgo 库，编译代码时需要 gcc 环境。
 
