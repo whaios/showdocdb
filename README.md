@@ -2,6 +2,7 @@
 
 自动化生成 [ShowDoc](https://github.com/star7th/showdoc)  数据字典文档，支持 mysql、postgres、sqlserver、sqlite3、oracle。
 
+- [命令说明](#命令说明)
 - [安装](#安装)
     - [下载可执行文件](#下载可执行文件)
 - [设置变量](#设置变量)
@@ -11,6 +12,40 @@
     - [SQLServer](#SQLServer)
     - [SQlite](#SQlite)
     - [Oracle](#Oracle)
+
+## 命令说明
+
+```
+$ showdocdb-windows-amd64.exe h
+
+NAME:
+   showdocdb - 自动化生成 ShowDoc 数据字典文档，支持 mysql、postgres、sqlserver、sqlite3、oracle。
+
+USAGE:
+   showdocdb [global options] command [command options] [arguments...]
+
+VERSION:
+   1.1.0
+
+COMMANDS:
+   help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --apihost value           ShowDoc 地址。 (default: "https://www.showdoc.com.cn") [%SHOWDOC_HOST%]
+   --apikey value            ShowDoc 开放 API 认证凭证。 [%SHOWDOC_APIKEY%]
+   --apitoken value          ShowDoc 开放 API 认证凭证。 [%SHOWDOC_APITOKEN%]
+   --cat value               文档所在目录，如果需要多层目录请用斜杠隔开，例如：“一层/二层/三层”
+   --db value                要同步的数据库名
+   --debug                   开启调试模式。 (default: false)
+   --driver value, -d value  数据库类型，支持：mysql、postgres、sqlserver、sqlite3、oracle (default: "mysql")
+   --help                    显示帮助 (default: false)
+   --host value, -h value    数据库地址和端口，如果是SQlite数据库则为文件 (default: "127.0.0.1:3306")
+   --pwd value, -p value     数据库密码
+   --schema value            PostgreSQL 数据库模式 (default: "public")
+   --user value, -u value    数据库用户名
+   --version, -v             print the version (default: false)
+
+```
 
 ## 安装
 

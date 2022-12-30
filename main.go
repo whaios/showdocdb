@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-const Version = "1.0.0"
+const Version = "1.1.0"
 
 const (
 	SHOWDOC_HOST     = "SHOWDOC_HOST"     // 环境变量：ShowDoc 地址。

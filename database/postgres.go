@@ -72,7 +72,12 @@ func (d *postgreSQL) Query() ([]*Table, error) {
 }
 
 func (d *postgreSQL) queryTable() ([]*Table, error) {
-	querySql := "SELECT table_name FROM information_schema.TABLES WHERE TABLE_SCHEMA = $1"
+	querySql := `
+		SELECT T.table_name, COALESCE(obj_description(relfilenode, 'pg_class'), '') AS comment
+		FROM information_schema.TABLES AS T, pg_class C
+		WHERE T.table_name = C.relname
+			AND TABLE_SCHEMA = $1
+		ORDER BY T.table_name`
 	rows, err := d.db.Query(querySql, d.schema)
 	if err != nil {
 		return nil, err
@@ -81,19 +86,25 @@ func (d *postgreSQL) queryTable() ([]*Table, error) {
 
 	tbs := make([]*Table, 0)
 	for rows.Next() {
-		var name string
-		if err = rows.Scan(&name); err != nil {
+		var name, comment string
+		if err = rows.Scan(&name, &comment); err != nil {
 			return tbs, err
 		}
-		tbs = append(tbs, &Table{Name: name})
+		tbs = append(tbs, &Table{Name: name, Comment: comment})
 	}
 	return tbs, nil
 }
 
 func (d *postgreSQL) queryColumn() ([]*Column, error) {
-	querySql := `SELECT table_name, column_name, column_default, is_nullable, udt_name
-				 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = $1
-				 ORDER BY ordinal_position`
+	querySql := `
+		SELECT COL.table_name, COL.column_name, COL.column_default, COL.is_nullable, COL.udt_name,
+			COALESCE(col_description(ATT.attrelid, ATT.attnum), '') AS comment
+		FROM information_schema.COLUMNS COL, pg_attribute ATT, pg_class CLS
+		WHERE COL.TABLE_SCHEMA = $1
+			AND COL.table_name = CLS.relname 
+			AND COL.column_name = ATT.attname
+			AND ATT.attrelid = CLS.oid
+		ORDER BY COL.table_name, COL.ordinal_position`
 	rows, err := d.db.Query(querySql, d.schema)
 	if err != nil {
 		return nil, err
@@ -103,8 +114,8 @@ func (d *postgreSQL) queryColumn() ([]*Column, error) {
 	cols := make([]*Column, 0)
 	for rows.Next() {
 		var tableName, colName, colDefault sql.NullString
-		var isNull, colType string
-		if err = rows.Scan(&tableName, &colName, &colDefault, &isNull, &colType); err != nil {
+		var isNull, colType, comment string
+		if err = rows.Scan(&tableName, &colName, &colDefault, &isNull, &colType, &comment); err != nil {
 			return cols, err
 		}
 		cols = append(cols, &Column{
@@ -113,7 +124,7 @@ func (d *postgreSQL) queryColumn() ([]*Column, error) {
 			Default:   colDefault.String,
 			IsNull:    isNull,
 			Type:      colType,
-			Comment:   "",
+			Comment:   comment,
 		})
 	}
 	return cols, nil
